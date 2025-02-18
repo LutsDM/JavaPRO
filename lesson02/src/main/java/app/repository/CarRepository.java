@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface CarRepository {
 
+    // CRUD - Create, Read, Update, Delete
     Car save(Car car);
     List<Car> findAll();
     Car findById(Long id);

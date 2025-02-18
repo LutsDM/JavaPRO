@@ -2,6 +2,7 @@ package app.repository;
 
 import app.domain.Car;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,12 @@ public class CarRepositoryMap implements CarRepository {
     // Это поле содержит идентификатор, который был присвоен
     // последнему сохранённому автомобилю
     private long currentId = 0;
+
+    public CarRepositoryMap() {
+        save(new Car("Toyota", 2022, new BigDecimal(30000)));
+        save(new Car("Honda", 2023, new BigDecimal(38000)));
+        save(new Car("Mercedes", 2019, new BigDecimal(42000)));
+    }
 
     @Override
     public Car save(Car car) {

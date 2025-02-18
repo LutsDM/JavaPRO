@@ -31,10 +31,10 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public BigDecimal getCarAveragePrice() {
-        return new BigDecimal(getAll() // Получаем все автомобили из БД
-                .stream() // Создаём стрим, то есть последовательность всех автомобилей
-                .mapToDouble(x -> x.getPrice().doubleValue()) // Преобразуем последовательность автомобилей в последовательность цен
-                .average() // Считаем среднюю цену автомобиля
-                .orElse(0.0)); // Предусматриваем значение по умолчанию на тот случай, если автомобилей в БД вообще нет
+        return new BigDecimal(getAll()
+                .stream()
+                .mapToDouble(x -> x.getPrice().doubleValue())
+                .average()
+                .orElse(0.0));
     }
 }

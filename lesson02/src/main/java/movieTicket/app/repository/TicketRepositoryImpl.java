@@ -18,7 +18,7 @@ public class TicketRepositoryImpl implements TicketRepository {
 
     @Override
     public List<Ticket> getAllTickets() {
-        return new ArrayList<>(database);
+        return database;
     }
 
     @Override
