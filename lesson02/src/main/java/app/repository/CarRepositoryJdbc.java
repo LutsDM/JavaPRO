@@ -3,16 +3,14 @@ package app.repository;
 import app.domain.Car;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import static app.constants.Constants.*;
 
 public class CarRepositoryJdbc implements CarRepository {
+    private static long currentId = 0;
 
     private Connection getConnection() {
         try {
@@ -27,15 +25,29 @@ public class CarRepositoryJdbc implements CarRepository {
         }
     }
 
-    @Override
     public Car save(Car car) {
         try (Connection connection = getConnection()) {
+            String query = "INSERT INTO car (brand, year, price) VALUES (?, ?, ?)";
+            try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
+                statement.setString(1, car.getBrand());
+                statement.setInt(2, car.getYear());
+                statement.setBigDecimal(3, car.getPrice());
+                statement.executeUpdate();
+
+
+                ResultSet generatedKeys = statement.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    car.setId(generatedKeys.getLong(1));
+                }
+            }
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return null;
+        return car;
     }
+
 
     @Override
     public List<Car> findAll() {
@@ -81,7 +93,18 @@ public class CarRepositoryJdbc implements CarRepository {
     @Override
     public void update(Car car) {
         try (Connection connection = getConnection()) {
+            String query = "UPDATE car SET brand = ?, year = ?, price = ? WHERE id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, car.getBrand());
+                statement.setInt(2, car.getYear());
+                statement.setBigDecimal(3, car.getPrice());
+                statement.setLong(4, car.getId());
 
+                int rowsAffected = statement.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new RuntimeException("Car with id " + car.getId() + " not found");
+                }
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -90,6 +113,9 @@ public class CarRepositoryJdbc implements CarRepository {
     @Override
     public void deleteById(Long id) {
         try (Connection connection = getConnection()) {
+            String query = "DELETE FROM car WHERE id = " + id;
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(query);
 
         } catch (Exception e) {
             throw new RuntimeException(e);

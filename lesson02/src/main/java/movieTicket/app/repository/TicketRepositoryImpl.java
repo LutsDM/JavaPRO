@@ -8,10 +8,11 @@ import java.util.List;
 public class TicketRepositoryImpl implements TicketRepository {
 
     private final List<Ticket> database = new ArrayList<>();
-
+    private long currentId = 1000;
 
     @Override
     public Ticket save(Ticket ticket) {
+        ticket.setId(++currentId);
         database.add(ticket);
         return ticket;
     }

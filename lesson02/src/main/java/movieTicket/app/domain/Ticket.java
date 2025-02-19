@@ -13,8 +13,7 @@ public class Ticket {
     private boolean isVip;
 
 
-    public Ticket(Long id, BigDecimal price, LocalDate purchaseDate, LocalDate sessionDate, boolean isVip) {
-        this.id = id;
+    public Ticket(BigDecimal price, LocalDate purchaseDate, LocalDate sessionDate, boolean isVip) {
         this.price = price;
         this.purchaseDate = purchaseDate;
         this.sessionDate = sessionDate;

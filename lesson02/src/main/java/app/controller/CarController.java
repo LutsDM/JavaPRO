@@ -19,6 +19,11 @@ public class CarController {
         return service.save(car);
     }
 
+    public void update(Long id, String brand, int year, double price) {
+        Car car = new Car(id, brand, year, new BigDecimal(price));
+        service.update(car);
+    }
+
     public List<Car> getAll() {
         return service.getAll();
     }

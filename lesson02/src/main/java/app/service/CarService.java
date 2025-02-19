@@ -10,5 +10,7 @@ public interface CarService {
     Car save(Car car);
     List<Car> getAll();
     Car getById(Long id);
+    void update(Car car);
     BigDecimal getCarAveragePrice();
+    void deleteById(Long id);
 }

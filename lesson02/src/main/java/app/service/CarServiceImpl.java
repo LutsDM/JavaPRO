@@ -30,11 +30,21 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
+    public void update(Car car) {
+        repository.update(car);
+    }
+
+    @Override
     public BigDecimal getCarAveragePrice() {
         return new BigDecimal(getAll()
                 .stream()
                 .mapToDouble(x -> x.getPrice().doubleValue())
                 .average()
                 .orElse(0.0));
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        repository.deleteById(id);
     }
 }

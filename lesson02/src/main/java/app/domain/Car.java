@@ -10,6 +10,9 @@ public class Car {
     private int year;
     private BigDecimal price;
 
+    public Car() {
+    }
+
     public Car(String brand, int year, BigDecimal price) {
         this.brand = brand;
         this.year = year;

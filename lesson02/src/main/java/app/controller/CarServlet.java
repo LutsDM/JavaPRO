@@ -35,6 +35,21 @@ public class CarServlet extends HttpServlet {
     // и записать всю информацию для клиента в объект resp (response).
     // После того как метод обработает, Tomcat прочитает всю информацию
     // из объекта resp, упакует её в http-ответ и отправит обратно клиенту.
+
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Writer writer = resp.getWriter();
+        resp.setContentType("Application/JSON");
+        Car car = mapper.readValue(req.getReader(), Car.class);
+
+        service.save(car);
+        resp.getWriter().write("Car was successfully added");
+        List<Car> cars = service.getAll();
+         mapper.writeValue(writer, cars);
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // Если в запросе будет присутствовать id, то его значение запишется в переменную.
@@ -55,4 +70,43 @@ public class CarServlet extends HttpServlet {
             mapper.writeValue(writer, car);
         }
     }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String id = req.getParameter("id");
+        Long numericId = Long.parseLong(id);
+        service.deleteById(numericId);
+
+
+        resp.getWriter().write(String.format("Car was deleted"));
+
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String id = req.getParameter("id");
+        if (id == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("ID parameter is required");
+            return;
+        }
+
+        try {
+            Long numericId = Long.parseLong(id);
+            ObjectMapper mapper = new ObjectMapper();
+            resp.setContentType("Application/JSON");
+            Writer writer = resp.getWriter();
+
+            Car car = mapper.readValue(req.getReader(), Car.class);
+            car.setId(numericId);
+
+            service.update(car);
+            writer.write("Car successfully updated");
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Invalid ID format");
+        }
+    }
+
+
 }
