@@ -10,7 +10,6 @@ import java.util.List;
 import static app.constants.Constants.*;
 
 public class CarRepositoryJdbc implements CarRepository {
-    private static long currentId = 0;
 
     private Connection getConnection() {
         try {
@@ -82,12 +81,27 @@ public class CarRepositoryJdbc implements CarRepository {
 
     @Override
     public Car findById(Long id) {
-        try (Connection connection = getConnection()) {
+        String query = "SELECT * FROM car WHERE id = ?";
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setLong(1, id);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                return new Car(
+                        resultSet.getLong("id"),
+                        resultSet.getString("brand"),
+                        resultSet.getInt("year"),
+                        resultSet.getBigDecimal("price") // Читаем BigDecimal
+                );
+            }
+            return null; // Если запись не найдена
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override

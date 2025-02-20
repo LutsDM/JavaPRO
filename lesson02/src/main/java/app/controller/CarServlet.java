@@ -2,6 +2,8 @@ package app.controller;
 
 import app.domain.Car;
 import app.repository.CarRepository;
+
+import app.repository.CarRepositoryHibernate;
 import app.repository.CarRepositoryJdbc;
 import app.repository.CarRepositoryMap;
 import app.service.CarService;
@@ -23,7 +25,7 @@ public class CarServlet extends HttpServlet {
     private final CarService service;
 
     public CarServlet() {
-        CarRepository repository = new CarRepositoryJdbc();
+        CarRepository repository = new CarRepositoryHibernate();
         service = new CarServiceImpl(repository);
     }
 
@@ -44,10 +46,13 @@ public class CarServlet extends HttpServlet {
         resp.setContentType("Application/JSON");
         Car car = mapper.readValue(req.getReader(), Car.class);
 
-        service.save(car);
-        resp.getWriter().write("Car was successfully added");
-        List<Car> cars = service.getAll();
-         mapper.writeValue(writer, cars);
+        if (car.getPrice() == null || car.getBrand() == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write(String.format("The car must have a brand and a price."));
+        } else {
+            service.save(car);
+            resp.getWriter().write(String.format("Car id:%s brand:'%s' was successfully added.", car.getId(), car.getBrand()));
+        }
     }
 
     @Override
@@ -77,35 +82,30 @@ public class CarServlet extends HttpServlet {
         Long numericId = Long.parseLong(id);
         service.deleteById(numericId);
 
+        if (id == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("ID parameter is required");
+        } else {
+            resp.getWriter().write(String.format("Car id:%n was deleted", numericId));
 
-        resp.getWriter().write(String.format("Car was deleted"));
-
+        }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String id = req.getParameter("id");
-        if (id == null) {
+        ObjectMapper mapper = new ObjectMapper();
+        Car car = mapper.readValue(req.getReader(), Car.class);
+
+        if (car.getId() == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("ID parameter is required");
             return;
-        }
-
-        try {
-            Long numericId = Long.parseLong(id);
-            ObjectMapper mapper = new ObjectMapper();
-            resp.setContentType("Application/JSON");
-            Writer writer = resp.getWriter();
-
-            Car car = mapper.readValue(req.getReader(), Car.class);
-            car.setId(numericId);
-
+        } else {
             service.update(car);
-            writer.write("Car successfully updated");
-        } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("Invalid ID format");
+            resp.getWriter().write(String.format("Car was update"));
         }
+
+
     }
 
 
